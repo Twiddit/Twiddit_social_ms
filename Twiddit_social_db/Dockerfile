@@ -1,7 +1,7 @@
 FROM mysql:8.0.32
 
 ENV MYSQL_ROOT_PASSWORD=Root123!!
-ENV MYSQL_DATABASE=social_twiddit_db
+ENV MYSQL_DATABASE=twiddit_social_db
 ENV MYSQL_USER=socialtwiddit
 ENV MYSQL_PASSWORD=2023
 
