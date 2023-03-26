@@ -8,10 +8,6 @@ class FollowersList(generics.ListAPIView): #Obtener usuarios que siguen a una cu
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followedId = id).filter(blocked = False)
         serializer = self.serializer_class(qs, many = True)
         return Response(serializer.data)
@@ -21,10 +17,6 @@ class FollowingList(generics.ListAPIView): #Obtener usuarios que a los que sigue
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followerId = id).filter(blocked = False)
         serializer = self.serializer_class(qs, many = True)
         return Response(serializer.data)
@@ -35,10 +27,6 @@ class BlockedList(generics.ListAPIView): #Obtener usuarios que siguen a una cuen
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followedId = id).filter(blocked = True)
         serializer = self.serializer_class(qs, many = True)
         return Response(serializer.data)
@@ -48,10 +36,6 @@ class NumberFollowers(generics.RetrieveAPIView): #Obtener numero de seguidores d
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followedId = id).filter(blocked = False).first()
         if qs != None:
             qs = Relationship.objects.filter(id = qs.id)
@@ -65,10 +49,6 @@ class NumberFollowing(generics.RetrieveAPIView): #obtener numero de seguidos de 
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followerId = id).filter(blocked = False).first()
         if qs != None:
             qs = Relationship.objects.filter(id = qs.id)
@@ -78,14 +58,10 @@ class NumberFollowing(generics.RetrieveAPIView): #obtener numero de seguidos de 
             return Response({"numberFollowing" : 0})
 
 class NumberBlocked(generics.RetrieveAPIView): #Obtener numero de bloqueados de una cuenta
-    serializer_class = RelationshipFollowersSerializer
+    serializer_class = RelationshipBlockedSerializer
     queryset = Relationship.objects.all()
 
     def get(self, request, id): 
-        try:
-            follower = User.objects.get(id = id)
-        except:
-            return Response({"message" : "El usuario no existe"})
         qs = self.queryset.filter(followedId = id).filter(blocked = True).first()
         if qs != None:
             qs = Relationship.objects.filter(id = qs.id)
@@ -98,13 +74,6 @@ class Disblock(generics.RetrieveDestroyAPIView):
     serializer_class = RelationshipSerializer
 
     def get(self, request, followerId, followedId): #Consultar si un usuario bloqueo a otro usuario
-
-        try:
-            follower = User.objects.get(id = followerId)
-            followed = User.objects.get(id = followedId)
-        except:
-            return Response({"message" : "El usuario no existe"})
-
         try:
             obj = Relationship.objects.get(followerId = followerId, followedId = followedId, blocked = True)
             return Response({"blocked" : True})
@@ -113,12 +82,6 @@ class Disblock(generics.RetrieveDestroyAPIView):
 
 
     def delete(self, request, followerId, followedId): #Desbloquear una cueenta
-        try:
-            follower = User.objects.get(id = followerId)
-            followed = User.objects.get(id = followedId)
-        except:
-            return Response({"message" : "El usuario no existe"})
-
         try:
             obj = Relationship.objects.get(followerId = followerId, followedId = followedId, blocked = True)
             obj.delete()
@@ -133,12 +96,6 @@ class Unfollow(generics.RetrieveDestroyAPIView):
 
     def get(self, request, followerId, followedId):#Cnosultar si un usuario sigue a otro
         try:
-            follower = User.objects.get(id = followerId)
-            followed = User.objects.get(id = followedId)
-        except:
-            return Response({"message" : "El usuario no existe"})
-
-        try:
             obj = Relationship.objects.get(followerId = followerId, followedId = followedId, blocked = False)
             return Response({"follow" : True})
         except:
@@ -147,23 +104,12 @@ class Unfollow(generics.RetrieveDestroyAPIView):
 
     def delete(self, request, followerId, followedId): #Dejar de seguir a un usuario
         try:
-            follower = User.objects.get(id = followerId)
-            followed = User.objects.get(id = followedId)
-        except:
-            return Response({"message" : "El usuario no existe"})
-
-        try:
             obj = Relationship.objects.get(followerId = followerId, followedId = followedId, blocked = False)
             obj.delete()
             return Response({"message" : "Se ha dejado de seguir al usuario correctamente"})
         except:
             return Response({"message" : "Ha ocurrido un error"})
 
-
-        if self.get(request, followerId, followedId):
-            self.obj.delete()
-            return Response({"message" : "Usuario desbloqueado correctamente"})
-        return Response({"message" : "Ha ocurrido un error"})
 
 class CreateRelationship(generics.CreateAPIView): #Empezar a seguir o bloquear a un usuario
 
@@ -184,16 +130,10 @@ class CreateRelationship(generics.CreateAPIView): #Empezar a seguir o bloquear a
             relationship.delete()
         except: 
             pass
-        try:
-            follower = User.objects.get(id = request.data["followerId"])
-            followed = User.objects.get(id = request.data["followedId"])
-            serializer = self.serializer_class(data = request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message" : f"usuario {mensaje} exitosamente"})
-            return Response(serializer.errors)
-        except:
-            return Response({"message" : "El usuario no existe"})
-        
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message" : f"usuario {mensaje} exitosamente"})
+        return Response(serializer.errors)
 
 

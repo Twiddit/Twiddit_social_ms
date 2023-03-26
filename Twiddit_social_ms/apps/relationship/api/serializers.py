@@ -35,8 +35,8 @@ class RelationshipBlockedSerializer(serializers.ModelSerializer):
     numberBlocked = serializers.SerializerMethodField()
 
     def get_numberBlocked(self, relationship: Relationship):
-        return Relationship.objects.filter(followerId=relationship.followerId).filter(blocked = True).count()
+        return Relationship.objects.filter(followedId=relationship.followedId).filter(blocked = True).count()
 
     class Meta:
         model = Relationship
-        fields = []
+        fields = ['numberBlocked']
