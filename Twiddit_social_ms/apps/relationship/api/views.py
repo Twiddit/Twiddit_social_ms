@@ -2,6 +2,7 @@ from apps.relationship.models import *
 from apps.relationship.api.serializers import *
 from rest_framework import generics
 from rest_framework.response import Response
+from .sender import MQConnection
 
 class FollowersList(generics.ListAPIView): #Obtener usuarios que siguen a una cuenta
     serializer_class = RelationshipSerializer
@@ -132,6 +133,19 @@ class CreateRelationship(generics.CreateAPIView): #Empezar a seguir o bloquear a
             pass
         serializer = self.serializer_class(data = request.data)
         if serializer.is_valid():
+            # Creación de una instancia de la cola de mensajes 
+            messageQueue = MQConnection()
+            # Configuración de la cola 
+            messageQueue.createConnection('172.17.0.1', 'notifications')
+            # Crear la notificacion
+            if mensaje == "seguido":
+                follower = request.data["followerId"]
+                followed = request.data["followedId"]
+                notification = f"{follower}.{followed}"
+                messageQueue.sendNotification('notifications', notification)
+            # Cerramos la conexión de envio en la cola    
+            messageQueue.closeConnection()
+        
             serializer.save()
             return Response({"message" : f"usuario {mensaje} exitosamente"})
         return Response(serializer.errors)
