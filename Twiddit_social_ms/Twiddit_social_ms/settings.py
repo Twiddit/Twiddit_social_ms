@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-$kiy_)hu_=j5$xnil*(q8jhsayl48cw@fxps_(kfbmg7rhgce4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['172.17.0.1']
+ALLOWED_HOSTS = ['172.17.0.1', 'localhost']
 
 
 # Application definition
@@ -88,12 +88,11 @@ WSGI_APPLICATION = 'Twiddit_social_ms.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'unppwrhk',
+        'USER': 'unppwrhk',
+        'PASSWORD': 'KLGV3ROh7WEbc9WoZLoR4VQhaJH5PT75',
+        'HOST': 'babar.db.elephantsql.com'
     }
 }
 
