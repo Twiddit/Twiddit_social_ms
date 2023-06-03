@@ -136,7 +136,7 @@ class CreateRelationship(generics.CreateAPIView): #Empezar a seguir o bloquear a
             # Creación de una instancia de la cola de mensajes 
             messageQueue = MQConnection()
             # Configuración de la cola 
-            messageQueue.createConnection('172.17.0.1', 'notifications')
+            messageQueue.createConnection('34.138.201.211', 'notifications')
             # Crear la notificacion
             if mensaje == "seguido":
                 follower = request.data["followerId"]
